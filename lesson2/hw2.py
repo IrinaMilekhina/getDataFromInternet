@@ -47,82 +47,85 @@ def parsing_salary(salary_text):
     return result
 
 
-url = 'https://hh.ru'
-position = 'python'
-page = 0
-vacansies = []
-while True:
-    params = {'text': position,
-              'L_save_area': 'true',
-              'clusters': 'true',
-              'enable_snippets': 'true',
-              'showClusters': 'true',
-              'page': page}
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'}
-    response = requests.get(url+'/search/vacancy/', params=params, headers=headers)
-    dom = bs(response.text, 'html.parser')
-
-    vacancies_list = dom.find_all('div', {'class': 'vacancy-serp-item'})
-
-    for vacancy in vacancies_list:
-        vacancy_data = {}
-        vacancy_name = vacancy.find('a', {'data-qa': "vacancy-serp__vacancy-title"}).getText()
-        vacancy_salary = vacancy.find('span', {'data-qa': "vacancy-serp__vacancy-compensation"})
-        if vacancy_salary:
-            vacancy_salary = formatting_salary_hh(vacancy_salary.getText())
-        vacancy_salary = parsing_salary(vacancy_salary)
-        vacancy_link = vacancy.find('a', {'data-qa': "vacancy-serp__vacancy-title"})['href']
-        vacancy_site = url[8:]
-
-        vacancy_data['name'] = vacancy_name
-        vacancy_data['salary'] = vacancy_salary
-        vacancy_data['link'] = vacancy_link
-        vacancy_data['site'] = vacancy_site
-        vacansies.append(vacancy_data)
-
-    # pprint(vacansies)
-    pager_next = dom.find_all('a', {'data-qa': "pager-next"})
-    if not pager_next:
-        break
-    page += 1
-#     print(page)
-
-# pprint(len(vacansies))
-
-url = 'https://russia.superjob.ru'
-page = 1
-while True:
-
-    params = {'keywords': position,
+def getting_and_parsing():
+    url = 'https://hh.ru'
+    position = 'python'
+    page = 0
+    vacansies = []
+    while True:
+        params = {'text': position,
+                  'L_save_area': 'true',
+                  'clusters': 'true',
+                  'enable_snippets': 'true',
+                  'showClusters': 'true',
                   'page': page}
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'}
-    response = requests.get(url+'/vacancy/search/', params=params, headers=headers)
-    dom = bs(response.text, 'html.parser')
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'}
+        response = requests.get(url+'/search/vacancy/', params=params, headers=headers)
+        dom = bs(response.text, 'html.parser')
 
-    vacancies_list = dom.find_all('div', {'class': "iJCa5 f-test-vacancy-item _1fma_ _2nteL"})
+        vacancies_list = dom.find_all('div', {'class': 'vacancy-serp-item'})
 
-    for vacancy in vacancies_list:
+        for vacancy in vacancies_list:
             vacancy_data = {}
-            vacancy_name = vacancy.find('a', {'class': "icMQ_"}).getText()
-            vacancy_salary = vacancy.find('span', {'class': "_1h3Zg"})
-
+            vacancy_name = vacancy.find('a', {'data-qa': "vacancy-serp__vacancy-title"}).getText()
+            vacancy_salary = vacancy.find('span', {'data-qa': "vacancy-serp__vacancy-compensation"})
             if vacancy_salary:
-                vacancy_salary = formatting_salary_superjob(vacancy_salary.getText())
+                vacancy_salary = formatting_salary_hh(vacancy_salary.getText())
             vacancy_salary = parsing_salary(vacancy_salary)
-            vacancy_link = url + vacancy.find('a', {'class': "icMQ_"})['href']
+            vacancy_link = vacancy.find('a', {'data-qa': "vacancy-serp__vacancy-title"})['href']
             vacancy_site = url[8:]
+
             vacancy_data['name'] = vacancy_name
             vacancy_data['salary'] = vacancy_salary
             vacancy_data['link'] = vacancy_link
             vacancy_data['site'] = vacancy_site
             vacansies.append(vacancy_data)
 
-    pager_next = dom.find_all('a', {'class': "f-test-button-dalshe"})
-    if not pager_next:
-        break
-    page += 1
-    # print(page)
+        # pprint(vacansies)
+        pager_next = dom.find_all('a', {'data-qa': "pager-next"})
+        if not pager_next:
+            break
+        page += 1
+    #     print(page)
 
-# pprint(len(vacansies))
+    # pprint(len(vacansies))
 
-print(vacansies[0])
+    url = 'https://russia.superjob.ru'
+    page = 1
+    while True:
+
+        params = {'keywords': position,
+                      'page': page}
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'}
+        response = requests.get(url+'/vacancy/search/', params=params, headers=headers)
+        dom = bs(response.text, 'html.parser')
+
+        vacancies_list = dom.find_all('div', {'class': "iJCa5 f-test-vacancy-item _1fma_ _2nteL"})
+
+        for vacancy in vacancies_list:
+                vacancy_data = {}
+                vacancy_name = vacancy.find('a', {'class': "icMQ_"}).getText()
+                vacancy_salary = vacancy.find('span', {'class': "_1h3Zg"})
+
+                if vacancy_salary:
+                    vacancy_salary = formatting_salary_superjob(vacancy_salary.getText())
+                vacancy_salary = parsing_salary(vacancy_salary)
+                vacancy_link = url + vacancy.find('a', {'class': "icMQ_"})['href']
+                vacancy_site = url[8:]
+                vacancy_data['name'] = vacancy_name
+                vacancy_data['salary'] = vacancy_salary
+                vacancy_data['link'] = vacancy_link
+                vacancy_data['site'] = vacancy_site
+                vacansies.append(vacancy_data)
+
+        pager_next = dom.find_all('a', {'class': "f-test-button-dalshe"})
+        if not pager_next:
+            break
+        page += 1
+        # print(page)
+
+    # pprint(len(vacansies))
+    return vacansies
+
+
+print(getting_and_parsing()[0])
