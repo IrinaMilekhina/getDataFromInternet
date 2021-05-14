@@ -85,11 +85,11 @@ while True:
     if not pager_next:
         break
     page += 1
-    # print(page)
+#     print(page)
 
 # pprint(len(vacansies))
 
-url = 'https://www.superjob.ru'
+url = 'https://russia.superjob.ru'
 page = 1
 while True:
 
@@ -110,7 +110,7 @@ while True:
                 vacancy_salary = formatting_salary_superjob(vacancy_salary.getText())
             vacancy_salary = parsing_salary(vacancy_salary)
             vacancy_link = url + vacancy.find('a', {'class': "icMQ_"})['href']
-            vacancy_site = url[12:]
+            vacancy_site = url[8:]
             vacancy_data['name'] = vacancy_name
             vacancy_data['salary'] = vacancy_salary
             vacancy_data['link'] = vacancy_link
