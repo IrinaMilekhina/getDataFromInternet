@@ -14,8 +14,6 @@
 from bs4 import BeautifulSoup as bs
 import requests
 import re
-import json
-from pprint import pprint
 
 
 def formatting_salary_hh(salary_text):
@@ -82,14 +80,10 @@ def getting_and_parsing():
             vacancy_data['site'] = vacancy_site
             vacansies.append(vacancy_data)
 
-        # pprint(vacansies)
         pager_next = dom.find_all('a', {'data-qa': "pager-next"})
         if not pager_next:
             break
         page += 1
-    #     print(page)
-
-    # pprint(len(vacansies))
 
     url = 'https://russia.superjob.ru'
     page = 1
@@ -123,12 +117,8 @@ def getting_and_parsing():
         if not pager_next:
             break
         page += 1
-        # print(page)
 
-    # pprint(len(vacansies))
     return vacansies
 
 
-data = getting_and_parsing()
-
-# pprint(data[0])
+getting_and_parsing()
