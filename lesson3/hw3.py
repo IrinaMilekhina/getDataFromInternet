@@ -14,31 +14,31 @@ db = client['vacancies_db']
 main_coll = db.main_coll
 
 
-def checking_copy(all_new_vacancies):
-    '''
-    Функция сравнивает каждую вакансию имеющимися в базе на наличие копии.
-    Сравнение по ссылке.
-    Если копии нет, то вакансия добавляется в новый список.
-    :param all_new_vacancies: list of dicts
-    :return: list of dicts
-    '''
-    checked_vacancies = []
-    return checked_vacancies
-
-
 def add_to_db(new_vacancies):
     '''
-    Функция добавляет в базу данных собранные данные по вакансиям
+    Функция добавляет собранные вакансии в базу. Сравнение происходит по ссылке.
+    Если вакансия есть в базе - обновление, если нет - добавление.
     :param new_vacancies: list of dicts
-    :return:
+    :return: Количество вакансий в базе после отработки (int)
     '''
-    pass
+    for el in new_vacancies:
+        main_coll.update_one({'link': el.get('link')}, {'$set': el}, upsert=True)
+    return main_coll.count_documents({})
 
 
 def find_by_salary(salary):
-    pass
+    # Сравнение происходит со всеми элементами списка salary, поэтому нет необходимости использовать $or
+    counter = main_coll.count_documents({'salary': {'$gt': salary}})
+    print(f'Найдено вакансий: {counter}:')
+    if counter:
+        res = main_coll.find({'salary': {'$gt': salary}})
+        output = input('Чтобы вывести вакансии на экран введите 1: ')
+        if output == 1:
+            for el in res:
+                print(el)
 
 
-all_new_vacancies = gap()
-checked_vacancies = checking_copy(all_new_vacancies)
-add_to_db(checked_vacancies)
+new_vacancies = gap()
+print(f'Сейчас в базе записей: {add_to_db(new_vacancies)}')
+
+find_by_salary(int(input('Введите уровень зарплаты: ')))

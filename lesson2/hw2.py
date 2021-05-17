@@ -14,6 +14,7 @@
 from bs4 import BeautifulSoup as bs
 import requests
 import re
+import json
 from pprint import pprint
 
 
@@ -128,4 +129,6 @@ def getting_and_parsing():
     return vacansies
 
 
-print(getting_and_parsing()[0])
+data = getting_and_parsing()
+
+# pprint(data[0])
