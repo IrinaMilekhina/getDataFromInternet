@@ -35,27 +35,29 @@ driver = webdriver.Chrome(options=chrome_options)
 driver.get('https://www.mvideo.ru/')
 
 # визуальная перемотка до раздела Новинки
-new_items = driver.find_element_by_xpath("//h2[contains(text(), 'Новинки')]/../../..//ul")
+new_items = driver.find_element_by_xpath("//h2[contains(text(), 'Новинки')]/ancestor::div[@class='section']")
 actions = ActionChains(driver)
 actions.move_to_element(new_items)
 actions.perform()
-# прокручивание слайдов
-WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, "//h2[contains(text(), 'Новинки')]/../../..//a[@class='next-btn c-btn c-btn_scroll-horizontal c-btn_icon i-icon-fl-arrow-right']"))).click()
+# прокручивание слайдов и сбор товаров
 time.sleep(3)
-driver.find_element_by_xpath("//h2[contains(text(), 'Новинки')]/../../..//a[@class='next-btn c-btn c-btn_scroll-horizontal c-btn_icon i-icon-fl-arrow-right']").click()
-time.sleep(3)
-driver.find_element_by_xpath("//h2[contains(text(), 'Новинки')]/../../..//a[@class='next-btn c-btn c-btn_scroll-horizontal c-btn_icon i-icon-fl-arrow-right']").click()
-# сбор товаров
-goods = driver.find_elements_by_xpath("//h2[contains(text(), 'Новинки')]/../../..//li//div[@class='fl-product-tile__picture-holder c-product-tile-picture__holder']/a")
+button = new_items.find_element_by_xpath(".//a[contains(@class, 'next-btn')]").click()
+goods_check = len(new_items.find_elements_by_xpath(".//li//div[@class='fl-product-tile__picture-holder c-product-tile-picture__holder']/a"))
+while True:
+    time.sleep(3)
+    new_items.find_element_by_xpath(".//a[@class='next-btn c-btn c-btn_scroll-horizontal c-btn_icon i-icon-fl-arrow-right']").click()
+    goods = new_items.find_elements_by_xpath(
+        ".//li//div[@class='fl-product-tile__picture-holder c-product-tile-picture__holder']/a")
+    if goods_check == len(goods):
+        break
+    goods_check = len(goods)
 
 # добавление в бд
 for good in goods:
-    tmp_el = good.get_attribute('data-product-info')
-    tmp_el_json = json.loads(shielding_for_json(tmp_el))
-    add_to_db(tmp_el_json)
+    add_to_db(json.loads(shielding_for_json(good.get_attribute('data-product-info'))))
 
 print(f'В базе всего: {main_coll.count_documents({})}')
-# for el in main_coll.find({}):
-#     pprint(el)
+for el in main_coll.find({}):
+    pprint(el)
 
 driver.close()
