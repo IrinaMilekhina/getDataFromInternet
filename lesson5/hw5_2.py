@@ -45,7 +45,7 @@ button = new_items.find_element_by_xpath(".//a[contains(@class, 'next-btn')]").c
 goods_check = len(new_items.find_elements_by_xpath(".//li//div[@class='fl-product-tile__picture-holder c-product-tile-picture__holder']/a"))
 while True:
     time.sleep(3)
-    new_items.find_element_by_xpath(".//a[@class='next-btn c-btn c-btn_scroll-horizontal c-btn_icon i-icon-fl-arrow-right']").click()
+    button.click()
     goods = new_items.find_elements_by_xpath(
         ".//li//div[@class='fl-product-tile__picture-holder c-product-tile-picture__holder']/a")
     if goods_check == len(goods):
